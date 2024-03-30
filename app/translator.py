@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 import time
+import torch
 
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 
@@ -22,6 +23,13 @@ class Translator:
     def load_model(self):
         _load_start = time.time()
 
+        num_gpus = torch.cuda.device_count()
+        if num_gpus == 0:
+            self.logger.warning("No GPU found. Using CPU.")
+        else:
+            # todo: init with cuda
+            self.logger.info(f"Number of GPUs found: {num_gpus}")
+
         self.model = M2M100ForConditionalGeneration.from_pretrained(self.model_path)
         self.tokenizer = M2M100Tokenizer.from_pretrained(self.model_path, src_lang=self.src_lang, tgt_lang=self.tgt_lang)
         self.forced_bos_token_id = self.tokenizer.get_lang_id(self.tgt_lang)
@@ -33,22 +41,28 @@ class Translator:
 
     def translate(self, input_text: str, src_lang: str = None, tgt_lang: str = None,
                   return_tensors: str = "pt", skip_special_tokens: bool = True):
-        _translate_start = time.time()
-        if src_lang:
-            self.tokenizer.src_lang = src_lang
-        if tgt_lang:
-            self.forced_bos_token_id = self.tokenizer.get_lang_id(tgt_lang)
+        translated_texts = self.batch([input_text], src_lang, tgt_lang, return_tensors, skip_special_tokens)
+        return translated_texts[0]
 
-        model_inputs = self.tokenizer(input_text, return_tensors=return_tensors)
+    def batch(self, input_texts: list[str], src_lang: str = None, tgt_lang: str = None,
+                  return_tensors: str = "pt", skip_special_tokens: bool = True):
+        _start = time.time()
 
-        generated_tokens = self.model.generate(**model_inputs, forced_bos_token_id=self.forced_bos_token_id)
+        # Prepare inputs for the model
+        inputs = self.tokenizer(input_texts, return_tensors=return_tensors, padding=True, truncation=True, max_length=512)
 
-        translated_text = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=skip_special_tokens)
-        _translate_end = time.time()
+        # Translate batch of inputs
+        with torch.no_grad():
+            outputs = self.model.generate(**inputs, forced_bos_token_id=self.forced_bos_token_id)
+
+        # Decode generated tokens to texts
+        translated_texts = self.tokenizer.batch_decode(outputs, skip_special_tokens=skip_special_tokens)
+
+        _end = time.time()
         if self.verbose:
-            print(f"Translation done in {_translate_end - _translate_start:.2f} seconds.")
-        self.logger.info(f"Translation done in {_translate_end - _translate_start:.2f} seconds.")
-        return translated_text[0]
+            print(f"Translation done in {_end - _start:.2f} seconds.")
+        self.logger.info(f"Translation done in {_end - _start:.2f} seconds.")
+        return translated_texts
 
 
 if __name__ == "__main__":
@@ -84,9 +98,18 @@ if __name__ == "__main__":
         "A close mouth catches no flies."
     ]
     _ut_start = time.time()
+    _results = []
     for src_text in src_texts:
         translated_text = _translator.translate(src_text)
 
         print(translated_text)
+        _results.append(translated_text)
     _ut_end = time.time()
-    print(f"Total time taken: {_ut_end - _ut_start:.2f} seconds for {len(src_texts)} texts.")
+    print(f"Total time taken: {_ut_end - _ut_start:.2f} seconds for src: {len(src_texts)} texts, result: {len(_results)}.")
+
+    _ut_start = time.time()
+    _results = _translator.batch(src_texts)
+    for translated_text in _results:
+        print(translated_text)
+    _ut_end = time.time()
+    print(f"Total time taken: {_ut_end - _ut_start:.2f} seconds for src: {len(src_texts)} texts, result: {len(_results)}.")

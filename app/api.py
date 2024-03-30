@@ -49,17 +49,16 @@ def translate_text():
     if 'toLang' not in data['payload']:
         to_lang = data['payload']['toLang']
 
-    translated_records = []
-    for record in text_records:
-        text = record.get('text', '')
-        if not text:
-            continue
-        _id = record.get('id', None)
-        if not _id:
-            _id = utils.md5(text)
+    # Extract text and id from records
+    texts = [record.get('text', '') for record in text_records if record.get('text')]
+    ids = [record.get('id') for record in text_records]
 
-        translated_text = translate(text, from_lang, to_lang)
-        translated_records.append({'id': _id, 'text': translated_text})
+    # Batch translate the texts
+    translated_texts = translator.batch(texts, src_lang=from_lang, tgt_lang=to_lang)
+
+    # Ensure alignment of IDs and translated texts
+    translated_records = [{'id': _id or utils.md5(text), 'text': translated_text}
+                          for _id, text, translated_text in zip(ids, texts, translated_texts)]
 
     return jsonify({
         'status': 'success',
@@ -68,9 +67,9 @@ def translate_text():
     })
 
 
-def translate(text, from_lang, to_lang):
-    """Translate the text to the target language function."""
-    translated_text = translator.translate(text, from_lang, to_lang)
+def translate(texts: list[str], from_lang: str, to_lang: str):
+    """Translate the text to the target language function with batch."""
+    translated_text = translator.batch(texts, from_lang, to_lang)
     return translated_text
 
 
