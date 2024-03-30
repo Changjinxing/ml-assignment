@@ -9,6 +9,7 @@ from translator import Translator
 app = Flask(__name__)
 
 translator = Translator()
+translator.load_model()
 
 
 @app.route('/health_check', methods=['GET'])
