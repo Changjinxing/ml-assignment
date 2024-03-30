@@ -45,11 +45,13 @@ class Translator:
         return translated_texts[0]
 
     def batch(self, input_texts: list[str], src_lang: str = None, tgt_lang: str = None,
-                  return_tensors: str = "pt", skip_special_tokens: bool = True):
+              return_tensors: str = "pt", skip_special_tokens: bool = True,
+              padding: bool = True, truncation: bool = True, max_length: int = 512):
         _start = time.time()
 
         # Prepare inputs for the model
-        inputs = self.tokenizer(input_texts, return_tensors=return_tensors, padding=True, truncation=True, max_length=512)
+        inputs = self.tokenizer(input_texts, return_tensors=return_tensors,
+                                padding=padding, truncation=truncation, max_length=max_length)
 
         # Translate batch of inputs
         with torch.no_grad():
