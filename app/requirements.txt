@@ -1,2 +1,4 @@
-transformers[torch]==4.21.0
-sentencepiece==0.1.97
+transformers==4.39.2
+torch==2.2.2
+sentencepiece==0.2.0
+Flask==3.0.2

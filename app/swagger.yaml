@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: Translation Service API
+  description: API for translating text from one language to another
+  version: 1.0.0
+servers:
+  - url: http://localhost:9527
+paths:
+  /translation:
+    post:
+      summary: Translate text to the target language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payload:
+                  type: object
+                  required:
+                    - records
+                  properties:
+                    fromLang:
+                      type: string
+                      description: Source language code (e.g., "en" for English)
+                    toLang:
+                      type: string
+                      description: Target language code (e.g., "ja" for Japanese)
+                    records:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: Unique identifier for the text
+                          text:
+                            type: string
+                            description: Text to be translated
+      responses:
+        '200':
+          description: Successful translation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  code:
+                    type: integer
+                    example: 200
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Unique identifier for the translated text
+                        text:
+                          type: string
+                          description: Translated text
+        '501':
+          description: Missing required fields in the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  code:
+                    type: integer
+                    example: 501
+                  msg:
+                    type: string
+                    example: payload field is required
+        '502':
+          description: Missing required fields in the records array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  code:
+                    type: integer
+                    example: 502
+                  msg:
+                    type: string
+                    example: records field is required
