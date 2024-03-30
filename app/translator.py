@@ -31,7 +31,6 @@ class Translator:
             self.logger.info(f"Number of GPUs found: {num_gpus}")
             self.device = 'cuda'
 
-
         self.model = M2M100ForConditionalGeneration.from_pretrained(self.model_path)
         self.model.to(self.device)
 
@@ -57,7 +56,6 @@ class Translator:
             self.tokenizer.src_lang = src_lang
         if tgt_lang:
             self.forced_bos_token_id = self.tokenizer.get_lang_id(tgt_lang)
-            print(f"tgt_lang: {tgt_lang}, forced_bos_token_id: {self.forced_bos_token_id}")
 
         # Prepare inputs for the model
         inputs = self.tokenizer(input_texts, return_tensors=return_tensors,
@@ -81,9 +79,8 @@ if __name__ == "__main__":
     _translator = Translator(verbose=False)
     _translator.load_model()
 
-    # src_text = "Life is like a box of chocolates."
     src_texts = [
-        "It's never too late to mend."
+        "It's never too late to mend.",
         "Keep good men company and you shall be of the number.",
         "A good book is a good friend.",
         "Nothing is impossible for a willing heart",
@@ -109,15 +106,6 @@ if __name__ == "__main__":
         "All that ends well is well.",
         "A close mouth catches no flies."
     ]
-    _ut_start = time.time()
-    _results = []
-    for src_text in src_texts:
-        translated_text = _translator.translate(src_text)
-
-        print(translated_text)
-        _results.append(translated_text)
-    _ut_end = time.time()
-    print(f"Total time taken: {_ut_end - _ut_start:.2f} seconds for src: {len(src_texts)} texts, result: {len(_results)}.")
 
     _ut_start = time.time()
     _results = _translator.batch(src_texts)

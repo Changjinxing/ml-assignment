@@ -56,8 +56,8 @@ The above design provides a reliable and efficient MLOps translation inference s
    - Develop algorithms to prioritize tasks based on GPU memory usage, ensuring efficient resource utilization.
 
 3. **Performance Optimization:**
-   - Explore model and data parallelism techniques to enhance throughput and efficiency.
-   - Implement mixed precision inference for faster processing leveraging modern GPU architectures.
+   - Model Warm-Up: Perform a warm-up translation using a small set of input texts before processing the main batch. This helps to initialize the model and tokenizer, reducing the overhead for subsequent translations. 
+   - Model Quantization: If applicable, consider using quantization techniques to reduce the memory footprint of the model and improve inference speed, especially on devices with limited resources like mobile devices or edge devices.
 
 4. **Scalability and Deployment Flexibility:**
    - Enhance deployment architecture for scalable and flexible configurations, including distributed inference.
