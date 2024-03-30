@@ -1,4 +1,56 @@
-Certainly, here's the updated markdown including the Docker login part:
+
+# Running in Your Local Machine
+
+To run the service locally:
+
+1. **Install Required Packages**: Install the required Python packages by running:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2. **Run the Service**: Start the service by executing:
+    ```bash
+    python api.py
+    ```
+
+3. **Test the Service**: Open another terminal and test the service by sending a POST request. Use the following command:
+    ```bash
+    curl --location --request POST 'http://127.0.0.1:9527/translation' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "payload": {
+            "fromLang": "en",
+            "records": [
+                {
+                    "id": "123",
+                    "text": "Life is like a box of chocolates."
+                },
+                {
+                    "id": "456",
+                    "text": "Life is a gift."
+                }
+            ],
+            "toLang": "ja"
+        }
+    }'
+    ```
+    You should receive a JSON response with translated text.
+    ```json
+    {
+      "code": 200,
+      "result": [
+        {
+          "id": "123",
+          "text": "人生はチョコレートの箱のようなものだ。"
+        },
+        {
+          "id": "456",
+          "text": "人生は贈り物です。"
+        }
+      ],
+      "status": "success"
+    }
+    ```
 
 # Installing Docker on Your System
 
@@ -66,58 +118,5 @@ Certainly, here's the updated markdown including the Docker login part:
     ```bash
     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
     kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   25m
-    ```
-
-# Running in Your Local Machine
-
-To run the service locally:
-
-1. **Install Required Packages**: Install the required Python packages by running:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-2. **Run the Service**: Start the service by executing:
-    ```bash
-    python api.py
-    ```
-
-3. **Test the Service**: Open another terminal and test the service by sending a POST request. Use the following command:
-    ```bash
-    curl --location --request POST 'http://127.0.0.1:9527/translation' \
-    --header 'Content-Type: application/json' \
-    --data-raw '{
-        "payload": {
-            "fromLang": "en",
-            "records": [
-                {
-                    "id": "123",
-                    "text": "Life is like a box of chocolates."
-                },
-                {
-                    "id": "456",
-                    "text": "Life is a gift."
-                }
-            ],
-            "toLang": "ja"
-        }
-    }'
-    ```
-    You should receive a JSON response with translated text.
-    ```json
-    {
-      "code": 200,
-      "result": [
-        {
-          "id": "123",
-          "text": "人生はチョコレートの箱のようなものだ。"
-        },
-        {
-          "id": "456",
-          "text": "人生は贈り物です。"
-        }
-      ],
-      "status": "success"
-    }
     ```
 
