@@ -14,6 +14,7 @@ class Translator:
         self.model = None
         self.tokenizer = None
         self.forced_bos_token_id = None
+        self.device = 'cpu'
 
         self.model_path = model_path
         self.src_lang = src_lang
@@ -27,10 +28,13 @@ class Translator:
         if num_gpus == 0:
             self.logger.warning("No GPU found. Using CPU.")
         else:
-            # todo: init with cuda
             self.logger.info(f"Number of GPUs found: {num_gpus}")
+            self.device = 'cuda'
+
 
         self.model = M2M100ForConditionalGeneration.from_pretrained(self.model_path)
+        self.model.to(self.device)
+
         self.tokenizer = M2M100Tokenizer.from_pretrained(self.model_path, src_lang=self.src_lang, tgt_lang=self.tgt_lang)
         self.forced_bos_token_id = self.tokenizer.get_lang_id(self.tgt_lang)
 
@@ -48,6 +52,12 @@ class Translator:
               return_tensors: str = "pt", skip_special_tokens: bool = True,
               padding: bool = True, truncation: bool = True, max_length: int = 512):
         _start = time.time()
+
+        if src_lang:
+            self.tokenizer.src_lang = src_lang
+        if tgt_lang:
+            self.forced_bos_token_id = self.tokenizer.get_lang_id(tgt_lang)
+            print(f"tgt_lang: {tgt_lang}, forced_bos_token_id: {self.forced_bos_token_id}")
 
         # Prepare inputs for the model
         inputs = self.tokenizer(input_texts, return_tensors=return_tensors,

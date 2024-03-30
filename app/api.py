@@ -46,8 +46,10 @@ def translate_text():
     if 'fromLang' in data['payload']:
         from_lang = data['payload']['fromLang']
     to_lang = 'ja'
-    if 'toLang' not in data['payload']:
+    if 'toLang' in data['payload']:
         to_lang = data['payload']['toLang']
+
+    print(f"from_lang: {from_lang}, to_lang: {to_lang}")
 
     # Extract text and id from records
     texts = [record.get('text', '') for record in text_records if record.get('text')]
