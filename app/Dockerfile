@@ -1,14 +1,15 @@
-# 基础镜像
+# Use the official Python 3.9 slim image as base
 FROM python:3.9-slim
 
-# 设置工作目录
+# Set the working directory inside the container
 WORKDIR /app
 
-# 复制应用程序代码到容器中
+# Copy the current directory contents into the container at /app
 COPY . .
 
-# 安装依赖项
+# Install the required Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 启动应用程序
-CMD ["python", "translation_service.py"]
+
+# Run the Python application when the container starts
+CMD ["python", "./api.py"]

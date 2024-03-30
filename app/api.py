@@ -1,7 +1,9 @@
 # Description: This is the main file for the translation service.
 # It uses the Translator class from translator.py to translate text from one language to another.
+import time
 
 from flask import Flask, request, jsonify
+import logging
 
 import utils
 from translator import Translator
@@ -10,6 +12,10 @@ app = Flask(__name__)
 
 translator = Translator()
 translator.load_model()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.info(f'Log for testing')
 
 
 @app.route('/health_check', methods=['GET'])
@@ -76,5 +82,6 @@ def translate(texts: list[str], from_lang: str, to_lang: str):
 
 
 if __name__ == '__main__':
+    logger.info(f"Starting the translation service + {time.time()}")
     app.run(host='0.0.0.0', port=9527)
 
